@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"strings"
 	"yangon/command/model/config"
@@ -18,74 +19,17 @@ type List struct {
 	Extra   string `gorm:"Extra"`
 }
 
-var modelTpl = `
-package app
-
-import (
-	"{{ProjectName}}/internal/{{AppName}}/model"
-	"github.com/jinzhu/gorm"
-	{{IsTime}}
-)
-
-func init() {
-	model.MainDB.AutoMigrate(new({{TableName}}))
-}
-
-type {{TableName}} struct {
-	{{TableFieldList}}
-}
-
-func (a *{{TableName}}) TableName() string {
-	return "{{tableName}}"
-}
-
-//添加
-func (a *{{TableName}}) Add() error {
-	return model.MainDB.Table(a.TableName()).Create(a).Error
-}
-
-//删除where
-func (a *{{TableName}}) Del(wheres map[string]interface{}) error {
-	db := model.MainDB.Table(a.TableName())
-	for k, v := range wheres {
-		db = db.Where(k, v)
-	}
-	return db.Delete(a).Error
-}
-
-//查询所有
-func (a *{{TableName}}) GetAll() (data []App, err error) {
-	err = model.MainDB.Table(a.TableName()).Find(&data).Error
-	return
-}
-
-//偏移查询
-func (a *{{TableName}}) Get(start int64, size int64, wheres map[string]interface{}) (data []App, total int64, err error) {
-	db := model.MainDB.Table(a.TableName())
-	for k, v := range wheres {
-		db = db.Where(k, v)
-	}
-	err = db.Limit(size).Offset(start).Find(&data).Error
-	err = db.Count(&total).Error
-	return
-}
-
-//根据id查询
-func (a *{{TableName}}) GetById() error {
-	return model.MainDB.Table(a.TableName()).Where("id=?", a.ID).First(a).Error
-}
-
-//修改ById
-func (a *{{TableName}}) UpdateById() error {
-	return model.MainDB.Table(a.TableName()).Where("id=?", a.ID).Update(a).Error
-}
-`
-
 func (options *RunOptions) Run() {
 	var err error
 	cfg, err := config.TryLoadFromDisk()
 	tools.MustCheck(err)
 	db, err := database.NewDatabaseClient(cfg.Mysql, nil)
+	tools.MustCheck(err)
+
+	//git
+	tools.MustCheck(tools.GitClone("https://github.com/myxy99/Yangon-tpl.git", "tmp\\"+options.ProjectName))
+	modelTpl, err := ioutil.ReadFile(fmt.Sprintf(`tmp/%s/model/model.go`, options.ProjectName))
+	defer tools.RemoveAllList("tmp")
 	tools.MustCheck(err)
 	rows, err := db.DB().Raw("show tables;").Rows()
 	tools.MustCheck(err)
@@ -108,14 +52,13 @@ func (options *RunOptions) Run() {
 			isTime = tmpIsTime || isTime
 			TableFieldList += fmt.Sprintf("%s\t%s\n\t", tools.StrFirstToUpper(tools.Capitalize(list.Key)), structType)
 		}
-		text = tools.ReplaceAllData(modelTpl, map[string]string{
+		text = tools.ReplaceAllData(string(modelTpl), map[string]string{
 			"{{TableFieldList}}": TableFieldList,
 			"{{ProjectName}}":    options.ProjectName,
 			"{{AppName}}":        options.AppName,
 			"{{TableName}}":      modelName,
 			"{{tableName}}":      table,
 		})
-		fmt.Println(isTime)
 		if isTime {
 			text = strings.ReplaceAll(text, "{{IsTime}}", "\"time\"")
 		} else {
