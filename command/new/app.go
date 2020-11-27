@@ -2,7 +2,6 @@ package newApp
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -11,24 +10,7 @@ import (
 	"yangon/tools"
 )
 
-var App *cobra.Command
-
-func init() {
-	var options *RunOptions
-	App = &cobra.Command{
-		Use:   "new",
-		Short: "Generate app scaffolding",
-		Long:  `Quickly generate app scaffolding`,
-		Run: func(cmd *cobra.Command, args []string) {
-			Run(options)
-		},
-	}
-	App.DisableSuggestions = true
-	options = NewRunOptions(App)
-	options.Flags()
-}
-
-func Run(options *RunOptions) {
+func (options *RunOptions) Run() {
 	tools.MustCheck(tools.GitClone("https://github.com/myxy99/Yangon-tpl.git", "tmp\\"+options.ProjectName))
 	_ = filepath.Walk("tmp\\"+options.ProjectName, func(path string, info os.FileInfo, err error) error {
 		newPath := strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(path, "{{AppName}}", options.AppName), "new\\", ""), "tmp\\", "")
@@ -47,5 +29,4 @@ func Run(options *RunOptions) {
 	})
 
 	_ = tools.RemoveAllList(options.ProjectName+"/new", "tmp")
-
 }
