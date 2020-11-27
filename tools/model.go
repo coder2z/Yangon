@@ -14,3 +14,7 @@ func SqlType2StructType(t string) (string, bool) {
 		return "string", false
 	}
 }
+
+func IsPRI(t string) bool {
+	return regexp.MustCompile(`PRI`).MatchString(t)
+}

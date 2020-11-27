@@ -42,15 +42,20 @@ func (options *RunOptions) Run() {
 		tools.MustCheck(err)
 		var TableFieldList, text string
 		isTime := false
+		Id := "Id"
 		for listRows.Next() {
 			list := new(List)
 			_ = listRows.Scan(&list.Key, &list.Type, &list.Default, &list.Extra, &list.Field, &list.Null)
 			//所有的字段
+			upper := tools.StrFirstToUpper(tools.Capitalize(list.Key))
+			if tools.IsPRI(list.Type) {
+				Id = upper
+			}
 			var structType string
 			var tmpIsTime bool
 			structType, tmpIsTime = tools.SqlType2StructType(list.Type)
 			isTime = tmpIsTime || isTime
-			TableFieldList += fmt.Sprintf("%s\t%s\n\t", tools.StrFirstToUpper(tools.Capitalize(list.Key)), structType)
+			TableFieldList += fmt.Sprintf("%s\t%s\n\t", upper, structType)
 		}
 		text = tools.ReplaceAllData(string(modelTpl), map[string]string{
 			"{{TableFieldList}}": TableFieldList,
@@ -58,6 +63,7 @@ func (options *RunOptions) Run() {
 			"{{AppName}}":        options.AppName,
 			"{{TableName}}":      modelName,
 			"{{tableName}}":      table,
+			"{{ID}}":             Id,
 		})
 		if isTime {
 			text = strings.ReplaceAll(text, "{{IsTime}}", "\"time\"")
