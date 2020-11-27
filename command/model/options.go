@@ -20,18 +20,21 @@ func init() {
 }
 
 type RunOptions struct {
-	c       *cobra.Command
-	AppName string
+	c                             *cobra.Command
+	AppName, DbGroup, ProjectName string
 }
 
 func NewRunOptions(c *cobra.Command) *RunOptions {
 	s := &RunOptions{
 		c:       c,
 		AppName: "",
+		DbGroup: "mysql",
 	}
 	return s
 }
 
-func (s *RunOptions) Flags() () {
-	s.c.Flags().StringVarP(&s.AppName, "AppName", "a", "demoApp", "app name")
+func (options *RunOptions) Flags() () {
+	options.c.Flags().StringVarP(&options.AppName, "AppName", "a", "demoApp", "app name")
+	options.c.Flags().StringVarP(&options.DbGroup, "DbGroup", "d", "mysql", "Db group name")
+	options.c.Flags().StringVarP(&options.ProjectName, "ProjectName", "p", "demoProjectName", "project name")
 }
