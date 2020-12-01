@@ -19,6 +19,10 @@ type List struct {
 	Extra   string `gorm:"Extra"`
 }
 
+//todo 生成handel
+//todo server
+//todo map
+
 func (options *RunOptions) Run() {
 	var err error
 	//解析配置
@@ -46,7 +50,7 @@ func (options *RunOptions) Run() {
 		//查字段名
 		listRows, err := db.DB().Raw(fmt.Sprintf("show columns from %s;", table)).Rows()
 		tools.MustCheck(err)
-		var TableFieldList, text string
+		var TableFieldList, modelText string
 		isTime := false
 		Id := "Id"
 		for listRows.Next() {
@@ -68,7 +72,7 @@ func (options *RunOptions) Run() {
 			TableFieldList += fmt.Sprintf("%s\t%s\n\t", upper, structType)
 		}
 		//模板替换
-		text = tools.ReplaceAllData(string(modelTpl), map[string]string{
+		modelText = tools.ReplaceAllData(string(modelTpl), map[string]string{
 			"{{TableFieldList}}": TableFieldList,
 			"{{ProjectName}}":    options.ProjectName,
 			"{{AppName}}":        options.AppName,
@@ -78,9 +82,9 @@ func (options *RunOptions) Run() {
 		})
 		//是否使用了time 包
 		if isTime {
-			text = strings.ReplaceAll(text, "{{IsTime}}", "\"time\"")
+			modelText = strings.ReplaceAll(modelText, "{{IsTime}}", "\"time\"")
 		} else {
-			text = strings.ReplaceAll(text, "{{IsTime}}", "")
+			modelText = strings.ReplaceAll(modelText, "{{IsTime}}", "")
 		}
 		//模板替换文件夹位置
 		path := `internal/{{AppName}}/model/{{table}}`
@@ -101,7 +105,7 @@ func (options *RunOptions) Run() {
 			tools.MustCheck(os.Rename(file, fmt.Sprintf("%s.bak", file)))
 		}
 		//向文件中写入数据
-		tools.WriteToFile(file, text)
+		tools.WriteToFile(file, modelText)
 		fmt.Println(file)
 		//关闭sql链接
 		listRows.Close()

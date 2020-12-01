@@ -22,6 +22,9 @@ func (options *RunOptions) Run() {
 		} else {
 			f, err := ioutil.ReadFile(path)
 			tools.MustCheck(err)
+			if tools.CheckFileIsExist(newPath) && options.Backup {
+				tools.MustCheck(os.Rename(newPath, fmt.Sprintf("%s.bak", newPath)))
+			}
 			tools.WriteToFile(newPath, strings.ReplaceAll(strings.ReplaceAll(string(f), "{{AppName}}", options.AppName), "{{ProjectName}}", options.ProjectName))
 		}
 		fmt.Println(newPath)

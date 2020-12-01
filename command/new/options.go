@@ -22,6 +22,7 @@ func init() {
 type RunOptions struct {
 	c                    *cobra.Command
 	AppName, ProjectName string
+	Backup               bool
 }
 
 func NewRunOptions(c *cobra.Command) *RunOptions {
@@ -29,6 +30,7 @@ func NewRunOptions(c *cobra.Command) *RunOptions {
 		c:           c,
 		AppName:     "",
 		ProjectName: "",
+		Backup:      true,
 	}
 	return s
 }
@@ -36,4 +38,5 @@ func NewRunOptions(c *cobra.Command) *RunOptions {
 func (options *RunOptions) Flags() () {
 	options.c.Flags().StringVarP(&options.AppName, "AppName", "a", "demoApp", "app name")
 	options.c.Flags().StringVarP(&options.ProjectName, "ProjectName", "p", "demoProject", "project name")
+	options.c.Flags().BoolVarP(&options.Backup, "Backup", "b", false, "backup file")
 }
