@@ -12,7 +12,7 @@ import (
 
 func (options *RunOptions) Run() {
 	tools.MustCheck(tools.GitClone("https://github.com/myxy99/Yangon-tpl.git", "tmp\\"+options.ProjectName))
-	_ = filepath.Walk("tmp\\"+options.ProjectName, func(path string, info os.FileInfo, err error) error {
+	_ = filepath.Walk("tmp\\"+options.ProjectName+"\\new", func(path string, info os.FileInfo, err error) error {
 		newPath := strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(path, "{{AppName}}", options.AppName), "new\\", ""), "tmp\\", "")
 		if regexp.MustCompile(`\\.git`).MatchString(newPath) {
 			return nil
