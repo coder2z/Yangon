@@ -36,7 +36,9 @@ func NewRunOptions(c *cobra.Command) *RunOptions {
 }
 
 func (options *RunOptions) Flags() () {
-	options.c.Flags().StringVarP(&options.AppName, "AppName", "a", "demoApp", "app name")
-	options.c.Flags().StringVarP(&options.ProjectName, "ProjectName", "p", "demoProject", "project name")
+	options.c.Flags().StringVarP(&options.AppName, "AppName", "a", "", "app name (required)")
+	options.c.Flags().StringVarP(&options.ProjectName, "ProjectName", "p", "", "project name (required)")
 	options.c.Flags().BoolVarP(&options.Backup, "Backup", "b", false, "backup file")
+	_ = options.c.MarkFlagRequired("AppName")
+	_ = options.c.MarkFlagRequired("ProjectName")
 }

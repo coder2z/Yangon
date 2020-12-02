@@ -1,6 +1,8 @@
 package model
 
-import "github.com/spf13/cobra"
+import (
+	"github.com/spf13/cobra"
+)
 
 var Model *cobra.Command
 
@@ -10,8 +12,9 @@ func init() {
 		Use:   "go",
 		Short: "db,handle,server,route code production",
 		Long:  `Quickly db,handle,server,route code code production`,
-		Run: func(cmd *cobra.Command, args []string) {
+		RunE: func(cmd *cobra.Command, args []string) error {
 			options.Run()
+			return nil
 		},
 	}
 	Model.DisableSuggestions = true
@@ -20,8 +23,8 @@ func init() {
 }
 
 type RunOptions struct {
-	c                    *cobra.Command
-	AppName, ProjectName string
+	c                             *cobra.Command
+	AppName, ProjectName, Version string
 }
 
 func NewRunOptions(c *cobra.Command) *RunOptions {
@@ -33,6 +36,10 @@ func NewRunOptions(c *cobra.Command) *RunOptions {
 }
 
 func (options *RunOptions) Flags() () {
-	options.c.Flags().StringVarP(&options.AppName, "AppName", "a", "demoApp", "app name")
-	options.c.Flags().StringVarP(&options.ProjectName, "ProjectName", "p", "demoProject", "project name")
+	options.c.Flags().StringVarP(&options.AppName, "AppName", "a", "", "app name (required)")
+	options.c.Flags().StringVarP(&options.ProjectName, "ProjectName", "p", "", "project name (required)")
+	options.c.Flags().StringVarP(&options.Version, "ApiVersion", "v", "", "api version (required)")
+	_ = options.c.MarkFlagRequired("AppName")
+	_ = options.c.MarkFlagRequired("ProjectName")
+	_ = options.c.MarkFlagRequired("ApiVersion")
 }

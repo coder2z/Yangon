@@ -129,10 +129,11 @@ func (options *RunOptions) Run() {
 				"{{tableName}}":   table,
 			})
 			//模板替换文件位置
-			handleFile := `internal/{{appName}}/api/v1/handle/{{table}}.go`
+			handleFile := `internal/{{appName}}/api/{{version}}/handle/{{table}}.go`
 			handleFile = tools.ReplaceAllData(handleFile, map[string]string{
 				"{{appName}}": options.AppName,
 				"{{table}}":   table,
+				"{{version}}": tools.UnStrFirstToUpper(options.Version),
 			})
 			//判断文件存在，如果存在 就备份之前文件
 			if tools.CheckFileIsExist(handleFile) {
@@ -193,11 +194,13 @@ func (options *RunOptions) Run() {
 				"{{appName}}":     options.AppName,
 				"{{TableName}}":   modelName,
 				"{{tableName}}":   table,
+				"{{version}}":     tools.UnStrFirstToUpper(options.Version),
 			})
 			//模板替换文件位置
-			registryFile := `internal/{{appName}}/api/v1/registry/{{table}}.go`
+			registryFile := `internal/{{appName}}/api/{{version}}/registry/{{table}}.go`
 			registryFile = tools.ReplaceAllData(registryFile, map[string]string{
 				"{{appName}}": options.AppName,
+				"{{version}}": tools.UnStrFirstToUpper(options.Version),
 				"{{table}}":   table,
 			})
 			//判断文件存在，如果存在 就备份之前文件
