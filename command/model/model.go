@@ -19,8 +19,8 @@ type List struct {
 	Extra   string `gorm:"Extra"`
 }
 
-//todo 生成handel
-//todo server
+//todo 生成handle map
+//todo server map
 //todo map
 
 func (options *RunOptions) Run() {
@@ -33,11 +33,8 @@ func (options *RunOptions) Run() {
 	tools.MustCheck(err)
 	//拉取模板
 	tools.MustCheck(tools.GitClone("https://github.com/myxy99/Yangon-tpl.git", "tmp\\"+options.ProjectName))
-	//获取到模板文件
-	modelTpl, err := ioutil.ReadFile(fmt.Sprintf(`tmp/%s/model/model.go`, options.ProjectName))
 	//defer删除拉取的模板
 	defer tools.RemoveAllList("tmp")
-	tools.MustCheck(err)
 	//查找表
 	rows, err := db.DB().Raw("show tables;").Rows()
 	tools.MustCheck(err)
@@ -46,11 +43,11 @@ func (options *RunOptions) Run() {
 	for rows.Next() {
 		tools.MustCheck(rows.Scan(&table))
 		//把表名进行驼峰式转换
-		modelName := tools.StrFirstToUpper(tools.Capitalize(table))
+		modelName := tools.StrFirstToUpper(table)
 		//查字段名
 		listRows, err := db.DB().Raw(fmt.Sprintf("show columns from %s;", table)).Rows()
 		tools.MustCheck(err)
-		var TableFieldList, modelText string
+		var TableFieldList, TableFieldMap string
 		isTime := false
 		Id := "Id"
 		for listRows.Next() {
@@ -58,7 +55,7 @@ func (options *RunOptions) Run() {
 			//查询所有字段
 			_ = listRows.Scan(&list.Key, &list.Type, &list.Default, &list.Extra, &list.Field, &list.Null)
 			//把字段名进行驼峰式转换
-			upper := tools.StrFirstToUpper(tools.Capitalize(list.Key))
+			upper := tools.StrFirstToUpper(list.Key)
 			//判断是不是主键
 			if tools.IsPRI(list.Type) {
 				Id = upper
@@ -70,43 +67,158 @@ func (options *RunOptions) Run() {
 			isTime = tmpIsTime || isTime
 			//组合结构体中的字段，字符串
 			TableFieldList += fmt.Sprintf("%s\t%s\n\t", upper, structType)
+			TableFieldMap += fmt.Sprintf("%s\t%s\t `form:\"%s\" json:\"%s\" validate:\"required\"` \n\t", upper, structType, list.Key, list.Key)
 		}
-		//模板替换
-		modelText = tools.ReplaceAllData(string(modelTpl), map[string]string{
-			"{{TableFieldList}}": TableFieldList,
-			"{{ProjectName}}":    options.ProjectName,
-			"{{AppName}}":        options.AppName,
-			"{{TableName}}":      modelName,
-			"{{tableName}}":      table,
-			"{{ID}}":             Id,
-		})
-		//是否使用了time 包
-		if isTime {
-			modelText = strings.ReplaceAll(modelText, "{{IsTime}}", "\"time\"")
-		} else {
-			modelText = strings.ReplaceAll(modelText, "{{IsTime}}", "")
+		// model
+		{
+			var modelText string
+			//获取到模板文件
+			modelTpl, err := ioutil.ReadFile(fmt.Sprintf(`tmp/%s/model/model.go`, options.ProjectName))
+			tools.MustCheck(err)
+			//模板替换
+			modelText = tools.ReplaceAllData(string(modelTpl), map[string]string{
+				"{{TableFieldList}}": TableFieldList,
+				"{{ProjectName}}":    options.ProjectName,
+				"{{AppName}}":        options.AppName,
+				"{{TableName}}":      modelName,
+				"{{tableName}}":      table,
+				"{{ID}}":             Id,
+			})
+			//是否使用了time 包
+			if isTime {
+				modelText = strings.ReplaceAll(modelText, "{{IsTime}}", "\"time\"")
+			} else {
+				modelText = strings.ReplaceAll(modelText, "{{IsTime}}", "")
+			}
+			//模板替换文件夹位置
+			modelPath := `internal/{{AppName}}/model/{{table}}`
+			modelPath = tools.ReplaceAllData(modelPath, map[string]string{
+				"{{AppName}}": options.AppName,
+				"{{table}}":   table,
+			})
+			//创建文件夹
+			tools.MustCheck(os.MkdirAll(modelPath, 777))
+			//模板替换文件位置
+			modelFile := `{{path}}/{{table}}.go`
+			modelFile = tools.ReplaceAllData(modelFile, map[string]string{
+				"{{path}}":  modelPath,
+				"{{table}}": table,
+			})
+			//判断文件存在，如果存在 就备份之前文件
+			if tools.CheckFileIsExist(modelFile) {
+				tools.MustCheck(os.Rename(modelFile, fmt.Sprintf("%s.bak", modelFile)))
+			}
+			//向文件中写入数据
+			tools.WriteToFile(modelFile, modelText)
+			fmt.Println("model\t=>\t", modelFile)
 		}
-		//模板替换文件夹位置
-		path := `internal/{{AppName}}/model/{{table}}`
-		path = tools.ReplaceAllData(path, map[string]string{
-			"{{AppName}}": options.AppName,
-			"{{table}}":   table,
-		})
-		//创建文件夹
-		tools.MustCheck(os.MkdirAll(path, 777))
-		//模板替换文件位置
-		file := `{{path}}/{{table}}.go`
-		file = tools.ReplaceAllData(file, map[string]string{
-			"{{path}}":  path,
-			"{{table}}": table,
-		})
-		//判断文件存在，如果存在 就备份之前文件
-		if tools.CheckFileIsExist(file) {
-			tools.MustCheck(os.Rename(file, fmt.Sprintf("%s.bak", file)))
+
+		//handle
+		{
+			var handleText string
+			//获取到模板文件
+			handleTpl, err := ioutil.ReadFile(fmt.Sprintf(`tmp/%s/model/handle.go`, options.ProjectName))
+			tools.MustCheck(err)
+			handleText = tools.ReplaceAllData(string(handleTpl), map[string]string{
+				"{{ProjectName}}": options.ProjectName,
+				"{{AppName}}":     options.AppName,
+				"{{TableName}}":   modelName,
+			})
+			//模板替换文件位置
+			handleFile := `internal/{{AppName}}/api/v1/handle/{{table}}.go`
+			handleFile = tools.ReplaceAllData(handleFile, map[string]string{
+				"{{AppName}}": options.AppName,
+				"{{table}}":   table,
+			})
+			//判断文件存在，如果存在 就备份之前文件
+			if tools.CheckFileIsExist(handleFile) {
+				tools.MustCheck(os.Rename(handleFile, fmt.Sprintf("%s.bak", handleFile)))
+			}
+			//向文件中写入数据
+			tools.WriteToFile(handleFile, handleText)
+			fmt.Println("handle\t=>\t", handleFile)
 		}
-		//向文件中写入数据
-		tools.WriteToFile(file, modelText)
-		fmt.Println(file)
+
+		//server
+		{
+			var serverText string
+			//获取到模板文件
+			serverTpl, err := ioutil.ReadFile(fmt.Sprintf(`tmp/%s/model/server.go`, options.ProjectName))
+			tools.MustCheck(err)
+			serverText = tools.ReplaceAllData(string(serverTpl), map[string]string{
+				"{{ProjectName}}": options.ProjectName,
+				"{{AppName}}":     options.AppName,
+				"{{TableName}}":   modelName,
+				"{{tableName}}":   table,
+				"{{Id}}":          Id,
+				"{{id}}":          tools.UnStrFirstToUpper(Id),
+			})
+			//模板替换文件位置
+			serverFile := `internal/{{AppName}}/server/{{table}}.go`
+			serverFile = tools.ReplaceAllData(serverFile, map[string]string{
+				"{{AppName}}": options.AppName,
+				"{{table}}":   table,
+			})
+			//判断文件存在，如果存在 就备份之前文件
+			if tools.CheckFileIsExist(serverFile) {
+				tools.MustCheck(os.Rename(serverFile, fmt.Sprintf("%s.bak", serverFile)))
+			}
+			//向文件中写入数据
+			tools.WriteToFile(serverFile, serverText)
+			fmt.Println("handle\t=>\t", serverFile)
+		}
+		//registry
+		{
+			var registryText string
+			//获取到模板文件
+			registryTpl, err := ioutil.ReadFile(fmt.Sprintf(`tmp/%s/model/registry.go`, options.ProjectName))
+			tools.MustCheck(err)
+			registryText = tools.ReplaceAllData(string(registryTpl), map[string]string{
+				"{{ProjectName}}": options.ProjectName,
+				"{{AppName}}":     options.AppName,
+				"{{TableName}}":   modelName,
+				"{{tableName}}":   table,
+			})
+			//模板替换文件位置
+			registryFile := `internal/{{AppName}}/api/v1/registry/{{table}}.go`
+			registryFile = tools.ReplaceAllData(registryFile, map[string]string{
+				"{{AppName}}": options.AppName,
+				"{{table}}":   table,
+			})
+			//判断文件存在，如果存在 就备份之前文件
+			if tools.CheckFileIsExist(registryFile) {
+				tools.MustCheck(os.Rename(registryFile, fmt.Sprintf("%s.bak", registryFile)))
+			}
+			//向文件中写入数据
+			tools.WriteToFile(registryFile, registryText)
+			fmt.Println("registry\t=>\t", registryFile)
+		}
+
+		//map
+		{
+			var mapText string
+			//获取到模板文件
+			mapTpl, err := ioutil.ReadFile(fmt.Sprintf(`tmp/%s/model/map.go`, options.ProjectName))
+			tools.MustCheck(err)
+			mapText = tools.ReplaceAllData(string(mapTpl), map[string]string{
+				"{{AppName}}":       options.AppName,
+				"{{TableFieldMap}}": TableFieldMap,
+			})
+			//模板替换文件位置
+			mapFile := `internal/{{AppName}}/map/{{table}}.go`
+			mapFile = tools.ReplaceAllData(mapFile, map[string]string{
+				"{{AppName}}": options.AppName,
+				"{{table}}":   table,
+			})
+			//判断文件存在，如果存在 就备份之前文件
+			if tools.CheckFileIsExist(mapFile) {
+				tools.MustCheck(os.Rename(mapFile, fmt.Sprintf("%s.bak", mapFile)))
+			}
+			//向文件中写入数据
+			tools.WriteToFile(mapFile, mapText)
+			fmt.Println("map\t=>\t", mapFile)
+		}
+
 		//关闭sql链接
 		listRows.Close()
 	}

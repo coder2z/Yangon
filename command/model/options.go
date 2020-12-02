@@ -7,9 +7,9 @@ var Model *cobra.Command
 func init() {
 	var options *RunOptions
 	Model = &cobra.Command{
-		Use:   "model",
-		Short: "db code production",
-		Long:  `Quickly db code production`,
+		Use:   "go",
+		Short: "db,handle,server,route code production",
+		Long:  `Quickly db,handle,server,route code code production`,
 		Run: func(cmd *cobra.Command, args []string) {
 			options.Run()
 		},
