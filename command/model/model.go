@@ -49,7 +49,7 @@ func (options *RunOptions) Run() {
 		tools.MustCheck(err)
 		var TableFieldList, TableFieldMap string
 		isTime := false
-		Id := "Id"
+		Id := "ID"
 		for listRows.Next() {
 			list := new(List)
 			//查询所有字段
@@ -67,7 +67,9 @@ func (options *RunOptions) Run() {
 			isTime = tmpIsTime || isTime
 			//组合结构体中的字段，字符串
 			TableFieldList += fmt.Sprintf("%s\t%s\n\t", upper, structType)
-			TableFieldMap += fmt.Sprintf("%s\t%s\t `form:\"%s\" json:\"%s\" validate:\"required\"` \n\t", upper, structType, list.Key, list.Key)
+			if !tmpIsTime {
+				TableFieldMap += fmt.Sprintf("%s\t%s\t `form:\"%s\" json:\"%s\" validate:\"required\"` \n\t", upper, structType, list.Key, list.Key)
+			}
 		}
 		// model
 		{
@@ -79,7 +81,7 @@ func (options *RunOptions) Run() {
 			modelText = tools.ReplaceAllData(string(modelTpl), map[string]string{
 				"{{TableFieldList}}": TableFieldList,
 				"{{ProjectName}}":    options.ProjectName,
-				"{{AppName}}":        options.AppName,
+				"{{appName}}":        options.AppName,
 				"{{TableName}}":      modelName,
 				"{{tableName}}":      table,
 				"{{ID}}":             Id,
@@ -91,9 +93,9 @@ func (options *RunOptions) Run() {
 				modelText = strings.ReplaceAll(modelText, "{{IsTime}}", "")
 			}
 			//模板替换文件夹位置
-			modelPath := `internal/{{AppName}}/model/{{table}}`
+			modelPath := `internal/{{appName}}/model/{{table}}`
 			modelPath = tools.ReplaceAllData(modelPath, map[string]string{
-				"{{AppName}}": options.AppName,
+				"{{appName}}": options.AppName,
 				"{{table}}":   table,
 			})
 			//创建文件夹
@@ -121,13 +123,15 @@ func (options *RunOptions) Run() {
 			tools.MustCheck(err)
 			handleText = tools.ReplaceAllData(string(handleTpl), map[string]string{
 				"{{ProjectName}}": options.ProjectName,
-				"{{AppName}}":     options.AppName,
+				"{{appName}}":     options.AppName,
+				"{{AppName}}":     tools.StrFirstToUpper(options.AppName),
 				"{{TableName}}":   modelName,
+				"{{tableName}}":   table,
 			})
 			//模板替换文件位置
-			handleFile := `internal/{{AppName}}/api/v1/handle/{{table}}.go`
+			handleFile := `internal/{{appName}}/api/v1/handle/{{table}}.go`
 			handleFile = tools.ReplaceAllData(handleFile, map[string]string{
-				"{{AppName}}": options.AppName,
+				"{{appName}}": options.AppName,
 				"{{table}}":   table,
 			})
 			//判断文件存在，如果存在 就备份之前文件
@@ -147,17 +151,27 @@ func (options *RunOptions) Run() {
 			tools.MustCheck(err)
 			serverText = tools.ReplaceAllData(string(serverTpl), map[string]string{
 				"{{ProjectName}}": options.ProjectName,
-				"{{AppName}}":     options.AppName,
+				"{{appName}}":     options.AppName,
+				"{{AppName}}":     tools.StrFirstToUpper(options.AppName),
 				"{{TableName}}":   modelName,
 				"{{tableName}}":   table,
 				"{{Id}}":          Id,
 				"{{id}}":          tools.UnStrFirstToUpper(Id),
 			})
 			//模板替换文件位置
-			serverFile := `internal/{{AppName}}/server/{{table}}.go`
-			serverFile = tools.ReplaceAllData(serverFile, map[string]string{
-				"{{AppName}}": options.AppName,
+			//模板替换文件夹位置
+			serverPath := `internal/{{appName}}/server/{{table}}`
+			serverPath = tools.ReplaceAllData(serverPath, map[string]string{
+				"{{appName}}": options.AppName,
 				"{{table}}":   table,
+			})
+			//创建文件夹
+			tools.MustCheck(os.MkdirAll(serverPath, 777))
+			//模板替换文件位置
+			serverFile := `{{path}}/{{table}}.go`
+			serverFile = tools.ReplaceAllData(serverFile, map[string]string{
+				"{{path}}":  serverPath,
+				"{{table}}": table,
 			})
 			//判断文件存在，如果存在 就备份之前文件
 			if tools.CheckFileIsExist(serverFile) {
@@ -165,8 +179,9 @@ func (options *RunOptions) Run() {
 			}
 			//向文件中写入数据
 			tools.WriteToFile(serverFile, serverText)
-			fmt.Println("handle\t=>\t", serverFile)
+			fmt.Println("server\t=>\t", serverFile)
 		}
+
 		//registry
 		{
 			var registryText string
@@ -175,14 +190,14 @@ func (options *RunOptions) Run() {
 			tools.MustCheck(err)
 			registryText = tools.ReplaceAllData(string(registryTpl), map[string]string{
 				"{{ProjectName}}": options.ProjectName,
-				"{{AppName}}":     options.AppName,
+				"{{appName}}":     options.AppName,
 				"{{TableName}}":   modelName,
 				"{{tableName}}":   table,
 			})
 			//模板替换文件位置
-			registryFile := `internal/{{AppName}}/api/v1/registry/{{table}}.go`
+			registryFile := `internal/{{appName}}/api/v1/registry/{{table}}.go`
 			registryFile = tools.ReplaceAllData(registryFile, map[string]string{
-				"{{AppName}}": options.AppName,
+				"{{appName}}": options.AppName,
 				"{{table}}":   table,
 			})
 			//判断文件存在，如果存在 就备份之前文件
@@ -201,13 +216,13 @@ func (options *RunOptions) Run() {
 			mapTpl, err := ioutil.ReadFile(fmt.Sprintf(`tmp/%s/model/map.go`, options.ProjectName))
 			tools.MustCheck(err)
 			mapText = tools.ReplaceAllData(string(mapTpl), map[string]string{
-				"{{AppName}}":       options.AppName,
+				"{{TableName}}":     modelName,
 				"{{TableFieldMap}}": TableFieldMap,
 			})
 			//模板替换文件位置
-			mapFile := `internal/{{AppName}}/map/{{table}}.go`
+			mapFile := `internal/{{appName}}/map/{{table}}.go`
 			mapFile = tools.ReplaceAllData(mapFile, map[string]string{
-				"{{AppName}}": options.AppName,
+				"{{appName}}": options.AppName,
 				"{{table}}":   table,
 			})
 			//判断文件存在，如果存在 就备份之前文件

@@ -34,5 +34,5 @@ func NewRunOptions(c *cobra.Command) *RunOptions {
 
 func (options *RunOptions) Flags() () {
 	options.c.Flags().StringVarP(&options.AppName, "AppName", "a", "demoApp", "app name")
-	options.c.Flags().StringVarP(&options.ProjectName, "ProjectName", "p", "demoProjectName", "project name")
+	options.c.Flags().StringVarP(&options.ProjectName, "ProjectName", "p", "demoProject", "project name")
 }
