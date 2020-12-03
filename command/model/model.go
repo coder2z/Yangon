@@ -129,11 +129,17 @@ func (options *RunOptions) Run() {
 				"{{tableName}}":   table,
 			})
 			//模板替换文件位置
-			handleFile := `internal/{{appName}}/api/{{version}}/handle/{{table}}.go`
-			handleFile = tools.ReplaceAllData(handleFile, map[string]string{
+			handlePath := `internal/{{appName}}/api/{{version}}/handle`
+			handlePath = tools.ReplaceAllData(handlePath, map[string]string{
 				"{{appName}}": options.AppName,
-				"{{table}}":   table,
 				"{{version}}": tools.UnStrFirstToUpper(options.Version),
+			})
+			//创建文件夹
+			tools.MustCheck(os.MkdirAll(handlePath, 777))
+			handleFile := `{{path}}/{{table}}.go`
+			handleFile = tools.ReplaceAllData(handleFile, map[string]string{
+				"{{path}}":  handlePath,
+				"{{table}}": table,
 			})
 			//判断文件存在，如果存在 就备份之前文件
 			if tools.CheckFileIsExist(handleFile) {
@@ -197,11 +203,17 @@ func (options *RunOptions) Run() {
 				"{{version}}":     tools.UnStrFirstToUpper(options.Version),
 			})
 			//模板替换文件位置
-			registryFile := `internal/{{appName}}/api/{{version}}/registry/{{table}}.go`
-			registryFile = tools.ReplaceAllData(registryFile, map[string]string{
+			registryPath := `internal/{{appName}}/api/{{version}}/registry`
+			registryPath = tools.ReplaceAllData(registryPath, map[string]string{
 				"{{appName}}": options.AppName,
 				"{{version}}": tools.UnStrFirstToUpper(options.Version),
-				"{{table}}":   table,
+			})
+			//创建文件夹
+			tools.MustCheck(os.MkdirAll(registryPath, 777))
+			registryFile := `{{path}}/{{table}}.go`
+			registryFile = tools.ReplaceAllData(registryFile, map[string]string{
+				"{{path}}":  registryPath,
+				"{{table}}": table,
 			})
 			//判断文件存在，如果存在 就备份之前文件
 			if tools.CheckFileIsExist(registryFile) {
