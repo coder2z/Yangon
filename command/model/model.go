@@ -2,9 +2,7 @@ package model
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
-	"strings"
 	"yangon/command/model/config"
 	"yangon/pkg/database"
 	"yangon/tools"
@@ -75,23 +73,29 @@ func (options *RunOptions) Run() {
 		{
 			var modelText string
 			//获取到模板文件
-			modelTpl, err := ioutil.ReadFile(fmt.Sprintf(`tmp/%s/model/model.go`, options.ProjectName))
-			tools.MustCheck(err)
 			//模板替换
-			modelText = tools.ReplaceAllData(string(modelTpl), map[string]string{
-				"{{TableFieldList}}": TableFieldList,
-				"{{ProjectName}}":    options.ProjectName,
-				"{{appName}}":        options.AppName,
-				"{{TableName}}":      modelName,
-				"{{tableName}}":      table,
-				"{{ID}}":             Id,
-			})
-			//是否使用了time 包
 			if isTime {
-				modelText = strings.ReplaceAll(modelText, "{{IsTime}}", "\"time\"")
+				modelText, err = tools.ParseTmplFile(fmt.Sprintf(`tmp/%s/model/model.go.tmpl`, options.ProjectName), map[string]string{
+					"TableFieldList": TableFieldList,
+					"ProjectName":    options.ProjectName,
+					"appName":        options.AppName,
+					"TableName":      modelName,
+					"tableName":      table,
+					"ID":             Id,
+					"IsTime":         "\"time\"",
+				})
 			} else {
-				modelText = strings.ReplaceAll(modelText, "{{IsTime}}", "")
+				modelText, err = tools.ParseTmplFile(fmt.Sprintf(`tmp/%s/model/model.go.tmpl`, options.ProjectName), map[string]string{
+					"TableFieldList": TableFieldList,
+					"ProjectName":    options.ProjectName,
+					"appName":        options.AppName,
+					"TableName":      modelName,
+					"tableName":      table,
+					"ID":             Id,
+					"IsTime":         "",
+				})
 			}
+			tools.MustCheck(err)
 			//模板替换文件夹位置
 			modelPath := `internal/{{appName}}/model/{{table}}`
 			modelPath = tools.ReplaceAllData(modelPath, map[string]string{
@@ -119,15 +123,14 @@ func (options *RunOptions) Run() {
 		{
 			var handleText string
 			//获取到模板文件
-			handleTpl, err := ioutil.ReadFile(fmt.Sprintf(`tmp/%s/model/handle.go`, options.ProjectName))
-			tools.MustCheck(err)
-			handleText = tools.ReplaceAllData(string(handleTpl), map[string]string{
-				"{{ProjectName}}": options.ProjectName,
-				"{{appName}}":     options.AppName,
-				"{{AppName}}":     tools.StrFirstToUpper(options.AppName),
-				"{{TableName}}":   modelName,
-				"{{tableName}}":   table,
+			handleText, err = tools.ParseTmplFile(fmt.Sprintf(`tmp/%s/model/handle.go.tmpl`, options.ProjectName), map[string]string{
+				"ProjectName": options.ProjectName,
+				"appName":     options.AppName,
+				"AppName":     tools.StrFirstToUpper(options.AppName),
+				"TableName":   modelName,
+				"tableName":   table,
 			})
+			tools.MustCheck(err)
 			//模板替换文件位置
 			handlePath := `internal/{{appName}}/api/{{version}}/handle`
 			handlePath = tools.ReplaceAllData(handlePath, map[string]string{
@@ -154,17 +157,16 @@ func (options *RunOptions) Run() {
 		{
 			var serverText string
 			//获取到模板文件
-			serverTpl, err := ioutil.ReadFile(fmt.Sprintf(`tmp/%s/model/server.go`, options.ProjectName))
-			tools.MustCheck(err)
-			serverText = tools.ReplaceAllData(string(serverTpl), map[string]string{
-				"{{ProjectName}}": options.ProjectName,
-				"{{appName}}":     options.AppName,
-				"{{AppName}}":     tools.StrFirstToUpper(options.AppName),
-				"{{TableName}}":   modelName,
-				"{{tableName}}":   table,
-				"{{Id}}":          Id,
-				"{{id}}":          tools.UnStrFirstToUpper(Id),
+			serverText, err = tools.ParseTmplFile(fmt.Sprintf(`tmp/%s/model/server.go.tmpl`, options.ProjectName), map[string]string{
+				"ProjectName": options.ProjectName,
+				"appName":     options.AppName,
+				"AppName":     tools.StrFirstToUpper(options.AppName),
+				"TableName":   modelName,
+				"tableName":   table,
+				"Id":          Id,
+				"id":          tools.UnStrFirstToUpper(Id),
 			})
+			tools.MustCheck(err)
 			//模板替换文件位置
 			//模板替换文件夹位置
 			serverPath := `internal/{{appName}}/server/{{table}}`
@@ -193,15 +195,14 @@ func (options *RunOptions) Run() {
 		{
 			var registryText string
 			//获取到模板文件
-			registryTpl, err := ioutil.ReadFile(fmt.Sprintf(`tmp/%s/model/registry.go`, options.ProjectName))
-			tools.MustCheck(err)
-			registryText = tools.ReplaceAllData(string(registryTpl), map[string]string{
-				"{{ProjectName}}": options.ProjectName,
-				"{{appName}}":     options.AppName,
-				"{{TableName}}":   modelName,
-				"{{tableName}}":   table,
-				"{{version}}":     tools.UnStrFirstToUpper(options.Version),
+			registryText, err = tools.ParseTmplFile(fmt.Sprintf(`tmp/%s/model/registry.go.tmpl`, options.ProjectName), map[string]string{
+				"ProjectName": options.ProjectName,
+				"appName":     options.AppName,
+				"TableName":   modelName,
+				"tableName":   table,
+				"version":     tools.UnStrFirstToUpper(options.Version),
 			})
+			tools.MustCheck(err)
 			//模板替换文件位置
 			registryPath := `internal/{{appName}}/api/{{version}}/registry`
 			registryPath = tools.ReplaceAllData(registryPath, map[string]string{
@@ -228,12 +229,11 @@ func (options *RunOptions) Run() {
 		{
 			var mapText string
 			//获取到模板文件
-			mapTpl, err := ioutil.ReadFile(fmt.Sprintf(`tmp/%s/model/map.go`, options.ProjectName))
-			tools.MustCheck(err)
-			mapText = tools.ReplaceAllData(string(mapTpl), map[string]string{
-				"{{TableName}}":     modelName,
-				"{{TableFieldMap}}": TableFieldMap,
+			mapText, err = tools.ParseTmplFile(fmt.Sprintf(`tmp/%s/model/map.go.tmpl`, options.ProjectName), map[string]string{
+				"TableName":     modelName,
+				"TableFieldMap": TableFieldMap,
 			})
+			tools.MustCheck(err)
 			//模板替换文件位置
 			mapFile := `internal/{{appName}}/map/{{table}}.go`
 			mapFile = tools.ReplaceAllData(mapFile, map[string]string{

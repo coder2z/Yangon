@@ -2,30 +2,33 @@ package newApp
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
-	"strings"
 	"yangon/tools"
 )
 
 func (options *RunOptions) Run() {
 	tools.MustCheck(tools.GitClone("https://github.com/myxy99/Yangon-tpl.git", "tmp\\"+options.ProjectName))
 	_ = filepath.Walk("tmp\\"+options.ProjectName+"\\new", func(path string, info os.FileInfo, err error) error {
-		newPath := strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(path, "{{AppName}}", options.AppName), "new\\", ""), "tmp\\", "")
+		newPath := tools.ReplaceAllData(path, map[string]string{
+			"{{AppName}}": options.AppName,
+			"new\\":       "",
+			"tmp\\":       "",
+			".tmpl":       "",
+		})
 		if regexp.MustCompile(`\\.git`).MatchString(newPath) {
 			return nil
 		}
 		if info.IsDir() {
 			_ = os.MkdirAll(newPath, 777)
 		} else {
-			f, err := ioutil.ReadFile(path)
-			tools.MustCheck(err)
 			if tools.CheckFileIsExist(newPath) && options.Backup {
 				tools.MustCheck(os.Rename(newPath, fmt.Sprintf("%s.bak", newPath)))
 			}
-			tools.WriteToFile(newPath, strings.ReplaceAll(strings.ReplaceAll(string(f), "{{AppName}}", options.AppName), "{{ProjectName}}", options.ProjectName))
+			s, err := tools.ParseTmplFile(path, options)
+			tools.MustCheck(err)
+			tools.WriteToFile(newPath, s)
 		}
 		fmt.Println(newPath)
 		return nil

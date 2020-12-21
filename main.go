@@ -4,6 +4,7 @@ import (
 	"github.com/spf13/cobra"
 	"yangon/command/model"
 	newApp "yangon/command/new"
+	"yangon/command/run"
 )
 
 func main() {
@@ -11,6 +12,7 @@ func main() {
 	rootCmd.AddCommand(
 		newApp.App,
 		model.Model,
+		run.Run,
 	)
 	_ = rootCmd.Execute()
 }
