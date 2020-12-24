@@ -2,9 +2,13 @@ package model
 
 import (
 	"fmt"
+	"github.com/BurntSushi/toml"
+	invoker "github.com/myxy99/component"
+	"github.com/myxy99/component/config"
+	"github.com/myxy99/component/config/datasource/manager"
+	database "github.com/myxy99/component/gorm"
+	"github.com/myxy99/component/pkg/xflag"
 	"os"
-	"yangon/command/model/config"
-	"yangon/pkg/database"
 	"yangon/tools"
 )
 
@@ -22,19 +26,30 @@ type List struct {
 //todo map
 
 func (options *RunOptions) Run() {
+
 	var err error
-	//解析配置
-	cfg, err := config.TryLoadFromDisk()
+
+	data, err := manager.NewDataSource(xflag.NString("go", "config"))
+	tools.MustCheck(err)
+
+	err = config.LoadFromDataSource(data, toml.Unmarshal)
+
+	tools.MustCheck(err)
+
+	invoker.Register(
+		database.Register(options.dbKey),
+	)
+	err = invoker.Init()
 	tools.MustCheck(err)
 	//链接数据库
-	db, err := database.NewDatabaseClient(cfg.Mysql, nil)
-	tools.MustCheck(err)
+	db := database.Invoker(options.dbLabel)
+
 	//拉取模板
 	tools.MustCheck(tools.GitClone("https://github.com/myxy99/Yangon-tpl.git", "tmp\\"+options.ProjectName))
 	//defer删除拉取的模板
 	defer tools.RemoveAllList("tmp")
 	//查找表
-	rows, err := db.DB().Raw("show tables;").Rows()
+	rows, err := db.Raw("show tables;").Rows()
 	tools.MustCheck(err)
 	defer rows.Close()
 	var table string
@@ -43,7 +58,7 @@ func (options *RunOptions) Run() {
 		//把表名进行驼峰式转换
 		modelName := tools.StrFirstToUpper(table)
 		//查字段名
-		listRows, err := db.DB().Raw(fmt.Sprintf("show columns from %s;", table)).Rows()
+		listRows, err := db.Raw(fmt.Sprintf("show columns from %s;", table)).Rows()
 		tools.MustCheck(err)
 		var TableFieldList, TableFieldMap string
 		isTime := false

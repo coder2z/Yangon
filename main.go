@@ -1,18 +1,18 @@
 package main
 
 import (
-	"github.com/spf13/cobra"
+	"github.com/myxy99/component/pkg/xflag"
 	"yangon/command/model"
 	newApp "yangon/command/new"
-	"yangon/command/run"
 )
 
 func main() {
-	rootCmd := &cobra.Command{Use: "Yangon"}
-	rootCmd.AddCommand(
+	xflag.NewRootCommand(&xflag.Command{
+		Use: "Yangon",
+	})
+	xflag.Register(
 		newApp.App,
 		model.Model,
-		run.Run,
 	)
-	_ = rootCmd.Execute()
+	_ = xflag.Parse()
 }
