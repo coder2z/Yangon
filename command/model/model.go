@@ -3,11 +3,11 @@ package model
 import (
 	"fmt"
 	"github.com/BurntSushi/toml"
-	invoker "github.com/myxy99/component"
-	"github.com/myxy99/component/config"
-	"github.com/myxy99/component/config/datasource/manager"
-	database "github.com/myxy99/component/gorm"
 	"github.com/myxy99/component/pkg/xflag"
+	"github.com/myxy99/component/xcfg"
+	"github.com/myxy99/component/xcfg/datasource/manager"
+	"github.com/myxy99/component/xinvoker"
+	database "github.com/myxy99/component/xinvoker/gorm"
 	"os"
 	"yangon/tools"
 )
@@ -32,14 +32,14 @@ func (options *RunOptions) Run() {
 	data, err := manager.NewDataSource(xflag.NString("go", "config"))
 	tools.MustCheck(err)
 
-	err = config.LoadFromDataSource(data, toml.Unmarshal)
+	err = xcfg.LoadFromDataSource(data, toml.Unmarshal)
 
 	tools.MustCheck(err)
 
-	invoker.Register(
+	xinvoker.Register(
 		database.Register(options.dbKey),
 	)
-	err = invoker.Init()
+	err = xinvoker.Init()
 	tools.MustCheck(err)
 	//链接数据库
 	db := database.Invoker(options.dbLabel)
