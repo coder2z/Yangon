@@ -1,9 +1,10 @@
 package main
 
 import (
-	"github.com/myxy99/component/pkg/xflag"
 	"yangon/command/model"
 	newApp "yangon/command/new"
+
+	"github.com/coder2m/component/pkg/xflag"
 )
 
 func main() {

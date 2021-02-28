@@ -2,14 +2,15 @@ package model
 
 import (
 	"fmt"
-	"github.com/BurntSushi/toml"
-	"github.com/myxy99/component/pkg/xflag"
-	"github.com/myxy99/component/xcfg"
-	"github.com/myxy99/component/xcfg/datasource/manager"
-	"github.com/myxy99/component/xinvoker"
-	database "github.com/myxy99/component/xinvoker/gorm"
 	"os"
 	"yangon/tools"
+
+	"github.com/BurntSushi/toml"
+	"github.com/coder2m/component/pkg/xflag"
+	"github.com/coder2m/component/xcfg"
+	"github.com/coder2m/component/xcfg/datasource/manager"
+	"github.com/coder2m/component/xinvoker"
+	database "github.com/coder2m/component/xinvoker/gorm"
 )
 
 type List struct {
