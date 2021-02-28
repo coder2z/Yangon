@@ -372,10 +372,10 @@ github.com/modern-go/reflect2 v1.0.1 h1:9f412s+6RmYXLWZSEzVVgPGK7C2PphHj5RJrvfx9
 github.com/modern-go/reflect2 v1.0.1/go.mod h1:bx2lNnkwVCuqBIxFjflWJWanXIb3RllmbCylyMrvgv0=
 github.com/mwitkow/go-conntrack v0.0.0-20161129095857-cc309e4a2223/go.mod h1:qRWi+5nqEBWmkhHvq77mSJWrCKwh8bxhgT7d/eI7P4U=
 github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f/go.mod h1:qRWi+5nqEBWmkhHvq77mSJWrCKwh8bxhgT7d/eI7P4U=
-github.com/myxy99/component v0.1.3 h1:8UCz+RdokgNWreydLAnOB6q8j2RKrN7RwC0fVtzLyzs=
-github.com/myxy99/component v0.1.3/go.mod h1:MpmD5yQRzo1k0Qc4n+xD5ONH5zosnotzIW9JzNRC+R8=
-github.com/myxy99/component v0.1.6 h1:TQWUaOldJkHp+u9qBb1Iv/nVaT21NVwzhbca750CeFQ=
-github.com/myxy99/component v0.1.6/go.mod h1:xB+owQi546BfQSQbb9ytTpv5pHD/bqbFgoz8aWCZOtk=
+github.com/coder2m/component v0.1.3 h1:8UCz+RdokgNWreydLAnOB6q8j2RKrN7RwC0fVtzLyzs=
+github.com/coder2m/component v0.1.3/go.mod h1:MpmD5yQRzo1k0Qc4n+xD5ONH5zosnotzIW9JzNRC+R8=
+github.com/coder2m/component v0.1.6 h1:TQWUaOldJkHp+u9qBb1Iv/nVaT21NVwzhbca750CeFQ=
+github.com/coder2m/component v0.1.6/go.mod h1:xB+owQi546BfQSQbb9ytTpv5pHD/bqbFgoz8aWCZOtk=
 github.com/nats-io/jwt v0.3.0/go.mod h1:fRYCDE99xlTsqUzISS1Bi75UBJ6ljOJQOAAu5VglpSg=
 github.com/nats-io/jwt v0.3.2/go.mod h1:/euKqTS1ZD+zzjYrY7pseZrTtWQSjujC7xjPc8wL6eU=
 github.com/nats-io/nats-server/v2 v2.1.2/go.mod h1:Afk+wRZqkMQs/p45uXdrVLuab3gwv3Z8C4HTBu8GD/k=
