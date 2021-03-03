@@ -9,7 +9,7 @@ import (
 )
 
 func (options *RunOptions) Run() {
-	tools.MustCheck(tools.GitClone("https://github.com/coder2m/Yangon-tpl.git", "tmp\\"+options.ProjectName))
+	tools.MustCheck(tools.GitClone("https://github.com.cnpmjs.org/coder2m/Yangon-tpl.git", "tmp\\"+options.ProjectName))
 	_ = filepath.Walk("tmp\\"+options.ProjectName+"\\new", func(path string, info os.FileInfo, err error) error {
 		newPath := tools.ReplaceAllData(path, map[string]string{
 			"{{AppName}}": options.AppName,
