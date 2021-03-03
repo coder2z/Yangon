@@ -46,7 +46,7 @@ func (options *RunOptions) Run() {
 	db := database.Invoker(options.dbLabel)
 
 	//拉取模板
-	tools.MustCheck(tools.GitClone("https://github.com/coder2m/Yangon-tpl.git", "tmp\\"+options.ProjectName))
+	tools.MustCheck(tools.GitClone("https://github.com.cnpmjs.org/coder2m/Yangon-tpl.git", "tmp\\"+options.ProjectName))
 	//defer删除拉取的模板
 	defer tools.RemoveAllList("tmp")
 	//查找表
@@ -185,7 +185,7 @@ func (options *RunOptions) Run() {
 			tools.MustCheck(err)
 			//模板替换文件位置
 			//模板替换文件夹位置
-			serverPath := `internal/{{appName}}/service/{{table}}`
+			serverPath := `internal/{{appName}}/services/{{table}}`
 			serverPath = tools.ReplaceAllData(serverPath, map[string]string{
 				"{{appName}}": options.AppName,
 				"{{table}}":   table,
@@ -204,7 +204,7 @@ func (options *RunOptions) Run() {
 			}
 			//向文件中写入数据
 			tools.WriteToFile(serverFile, serverText)
-			fmt.Println("service\t=>\t", serverFile)
+			fmt.Println("services\t=>\t", serverFile)
 		}
 
 		//registry
