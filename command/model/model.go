@@ -6,11 +6,11 @@ import (
 	"yangon/tools"
 
 	"github.com/BurntSushi/toml"
-	"github.com/coder2m/component/pkg/xflag"
-	"github.com/coder2m/component/xcfg"
-	"github.com/coder2m/component/xcfg/datasource/manager"
-	"github.com/coder2m/component/xinvoker"
-	database "github.com/coder2m/component/xinvoker/gorm"
+	"github.com/coder2z/component/pkg/xflag"
+	"github.com/coder2z/component/xcfg"
+	"github.com/coder2z/component/xcfg/datasource/manager"
+	"github.com/coder2z/component/xinvoker"
+	database "github.com/coder2z/component/xinvoker/gorm"
 )
 
 type List struct {

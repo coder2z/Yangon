@@ -1,7 +1,7 @@
 package model
 
 import (
-	"github.com/coder2m/component/pkg/xflag"
+	"github.com/coder2z/component/pkg/xflag"
 	"github.com/spf13/cobra"
 )
 
