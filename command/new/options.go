@@ -1,7 +1,7 @@
 package newApp
 
 import (
-	"github.com/coder2z/component/pkg/xflag"
+	"github.com/coder2z/g-saber/xflag"
 	"github.com/spf13/cobra"
 )
 

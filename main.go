@@ -4,7 +4,7 @@ import (
 	"yangon/command/model"
 	newApp "yangon/command/new"
 
-	"github.com/coder2z/component/pkg/xflag"
+	"github.com/coder2z/g-saber/xflag"
 )
 
 func main() {

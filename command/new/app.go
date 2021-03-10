@@ -2,14 +2,16 @@ package newApp
 
 import (
 	"fmt"
+	"github.com/coder2z/g-saber/xconsole"
 	"os"
 	"path/filepath"
 	"regexp"
+	"yangon/constant"
 	"yangon/tools"
 )
 
 func (options *RunOptions) Run() {
-	tools.MustCheck(tools.GitClone("https://github.com.cnpmjs.org/coder2m/Yangon-tpl.git", "tmp\\"+options.ProjectName))
+	tools.MustCheck(tools.GitClone(constant.GitUrl, "tmp\\"+options.ProjectName))
 	_ = filepath.Walk("tmp\\"+options.ProjectName+"\\new", func(path string, info os.FileInfo, err error) error {
 		newPath := tools.ReplaceAllData(path, map[string]string{
 			"{{AppName}}": options.AppName,
@@ -17,7 +19,7 @@ func (options *RunOptions) Run() {
 			"tmp\\":       "",
 			".tmpl":       "",
 		})
-		if regexp.MustCompile(`\\.git`).MatchString(newPath) {
+		if regexp.MustCompile(`\\.git`).MatchString(newPath) && !info.IsDir() {
 			return nil
 		}
 		if info.IsDir() {
@@ -30,7 +32,7 @@ func (options *RunOptions) Run() {
 			tools.MustCheck(err)
 			tools.WriteToFile(newPath, s)
 		}
-		fmt.Println(newPath)
+		xconsole.Green(newPath)
 		return nil
 	})
 

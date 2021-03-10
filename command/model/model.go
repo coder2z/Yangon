@@ -2,15 +2,17 @@ package model
 
 import (
 	"fmt"
+	"github.com/coder2z/g-saber/xconsole"
 	"os"
+	"yangon/constant"
 	"yangon/tools"
 
 	"github.com/BurntSushi/toml"
-	"github.com/coder2z/component/pkg/xflag"
-	"github.com/coder2z/component/xcfg"
-	"github.com/coder2z/component/xcfg/datasource/manager"
-	"github.com/coder2z/component/xinvoker"
-	database "github.com/coder2z/component/xinvoker/gorm"
+	"github.com/coder2z/g-saber/xcfg"
+	"github.com/coder2z/g-saber/xflag"
+	"github.com/coder2z/g-server/datasource/manager"
+	"github.com/coder2z/g-server/xinvoker"
+	database "github.com/coder2z/g-server/xinvoker/gorm"
 )
 
 type List struct {
@@ -46,7 +48,7 @@ func (options *RunOptions) Run() {
 	db := database.Invoker(options.dbLabel)
 
 	//拉取模板
-	tools.MustCheck(tools.GitClone("https://github.com.cnpmjs.org/coder2m/Yangon-tpl.git", "tmp\\"+options.ProjectName))
+	tools.MustCheck(tools.GitClone(constant.GitUrl, "tmp\\"+options.ProjectName))
 	//defer删除拉取的模板
 	defer tools.RemoveAllList("tmp")
 	//查找表
@@ -132,7 +134,7 @@ func (options *RunOptions) Run() {
 			}
 			//向文件中写入数据
 			tools.WriteToFile(modelFile, modelText)
-			fmt.Println("model\t=>\t", modelFile)
+			xconsole.Greenf("model", modelFile)
 		}
 
 		//handle
@@ -166,7 +168,7 @@ func (options *RunOptions) Run() {
 			}
 			//向文件中写入数据
 			tools.WriteToFile(handleFile, handleText)
-			fmt.Println("handle\t=>\t", handleFile)
+			xconsole.Greenf("handle", handleFile)
 		}
 
 		//server
@@ -204,7 +206,7 @@ func (options *RunOptions) Run() {
 			}
 			//向文件中写入数据
 			tools.WriteToFile(serverFile, serverText)
-			fmt.Println("services\t=>\t", serverFile)
+			xconsole.Greenf("services", serverFile)
 		}
 
 		//registry
@@ -238,7 +240,7 @@ func (options *RunOptions) Run() {
 			}
 			//向文件中写入数据
 			tools.WriteToFile(registryFile, registryText)
-			fmt.Println("registry\t=>\t", registryFile)
+			xconsole.Greenf("registry", registryFile)
 		}
 
 		//map
@@ -262,7 +264,7 @@ func (options *RunOptions) Run() {
 			}
 			//向文件中写入数据
 			tools.WriteToFile(mapFile, mapText)
-			fmt.Println("map\t=>\t", mapFile)
+			xconsole.Greenf("map", mapFile)
 		}
 
 		//关闭sql链接
