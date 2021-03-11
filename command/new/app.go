@@ -13,13 +13,13 @@ import (
 func (options *RunOptions) Run() {
 	dir, _ := os.Getwd()
 	tools.MustCheck(tools.GitClone(constant.GitUrl, filepath.Join(dir, "tmp", options.ProjectName)))
-	_ = os.Mkdir(filepath.Join(dir, "tmp", options.ProjectName, "new"), 0755)
+	_ = os.Mkdir(filepath.Join(dir, "tmp", options.ProjectName, "new"), 0777)
 	_ = filepath.Walk(filepath.Join(dir, "tmp", options.ProjectName, "new"), func(path string, info os.FileInfo, err error) error {
 		newPath := tools.ReplaceAllData(path, map[string]string{
 			"{{AppName}}": options.AppName,
 			"new":         "",
 			"tmp":         "",
-			".tmpl":       "",
+			".l":       "",
 		})
 		if regexp.MustCompile(`.git`).MatchString(newPath) && !info.IsDir() {
 			return nil
