@@ -8,9 +8,9 @@ Self-use Development scaffolding
 
 ## :rocket:Installation
 
-`
+```
 go get -u github.com/coder2z/yangon
-`
+```
 
 or
 
