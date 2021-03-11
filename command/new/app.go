@@ -11,9 +11,10 @@ import (
 )
 
 func (options *RunOptions) Run() {
-	tools.MustCheck(tools.GitClone(constant.GitUrl, "tmp\\"+options.ProjectName))
-	tools.MustCheck(os.MkdirAll("tmp\\"+options.ProjectName, 0777))
-	_ = filepath.Walk("tmp\\"+options.ProjectName+"\\new", func(path string, info os.FileInfo, err error) error {
+	dir, _ := os.Getwd()
+	tools.MustCheck(tools.GitClone(constant.GitUrl, filepath.Join(dir, "tmp", options.ProjectName)))
+	_ = os.Mkdir(filepath.Join(dir, "tmp", options.ProjectName, "new"), 0755)
+	_ = filepath.Walk(filepath.Join(dir, "tmp", options.ProjectName, "new"), func(path string, info os.FileInfo, err error) error {
 		newPath := tools.ReplaceAllData(path, map[string]string{
 			"{{AppName}}": options.AppName,
 			"new\\":       "",
@@ -36,6 +37,5 @@ func (options *RunOptions) Run() {
 		xconsole.Green(newPath)
 		return nil
 	})
-
-	_ = tools.RemoveAllList(options.ProjectName+"/new", "tmp")
+	_ = tools.RemoveAllList(filepath.Join(dir, options.ProjectName, "new"), filepath.Join(dir, "tmp"))
 }
