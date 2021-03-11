@@ -13,6 +13,9 @@ import (
 func (options *RunOptions) Run() {
 	tools.MustCheck(tools.GitClone(constant.GitUrl, "tmp\\"+options.ProjectName))
 	_ = filepath.Walk("tmp\\"+options.ProjectName+"\\new", func(path string, info os.FileInfo, err error) error {
+		if info == nil {
+			return nil
+		}
 		newPath := tools.ReplaceAllData(path, map[string]string{
 			"{{AppName}}": options.AppName,
 			"new\\":       "",
