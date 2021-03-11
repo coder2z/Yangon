@@ -26,7 +26,7 @@ func init() {
 			command.Flags().StringVarP(&options.Version, "ApiVersion", "v", "", "api version (required)")
 			command.Flags().StringVarP(&options.dbKey, "dbKey", "k", "mysql", "dbKey")
 			command.Flags().StringVarP(&options.dbLabel, "dbLabel", "l", "main", "dbLabel")
-			command.Flags().StringP("config", "c", "config/config.toml", "配置文件")
+			command.Flags().StringP("xcfg", "c", "config/config.toml", "配置文件")
 			_ = command.MarkFlagRequired("AppName")
 			_ = command.MarkFlagRequired("ProjectName")
 			_ = command.MarkFlagRequired("ApiVersion")

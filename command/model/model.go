@@ -33,7 +33,7 @@ func (options *RunOptions) Run() {
 	dir, _ := os.Getwd()
 	var err error
 
-	data, err := manager.NewDataSource(xflag.NString("go", "config"))
+	data, err := manager.NewDataSource(xflag.NString("go", "xcfg"))
 	tools.MustCheck(err)
 
 	err = xcfg.LoadFromDataSource(data, toml.Unmarshal)
@@ -116,7 +116,7 @@ func (options *RunOptions) Run() {
 			}
 			tools.MustCheck(err)
 			//模板替换文件夹位置
-			modelPath := `internal/{{appName}}/model/{{table}}`
+			modelPath := filepath.Join(dir,"internal","{{appName}}","model","{{table}}")
 			modelPath = tools.ReplaceAllData(modelPath, map[string]string{
 				"{{appName}}": options.AppName,
 				"{{table}}":   table,
@@ -124,7 +124,7 @@ func (options *RunOptions) Run() {
 			//创建文件夹
 			tools.MustCheck(os.MkdirAll(modelPath, 777))
 			//模板替换文件位置
-			modelFile := `{{path}}/{{table}}.go`
+			modelFile := filepath.Join("{{path}}","{{table}}.go")
 			modelFile = tools.ReplaceAllData(modelFile, map[string]string{
 				"{{path}}":  modelPath,
 				"{{table}}": table,
@@ -151,14 +151,14 @@ func (options *RunOptions) Run() {
 			})
 			tools.MustCheck(err)
 			//模板替换文件位置
-			handlePath := `internal/{{appName}}/api/{{version}}/handle`
+			handlePath := filepath.Join(dir,"internal","{{appName}}","api","{{version}}","handle")
 			handlePath = tools.ReplaceAllData(handlePath, map[string]string{
 				"{{appName}}": options.AppName,
 				"{{version}}": tools.UnStrFirstToUpper(options.Version),
 			})
 			//创建文件夹
 			tools.MustCheck(os.MkdirAll(handlePath, 777))
-			handleFile := `{{path}}/{{table}}.go`
+			handleFile := filepath.Join("{{path}}","{{table}}.go")
 			handleFile = tools.ReplaceAllData(handleFile, map[string]string{
 				"{{path}}":  handlePath,
 				"{{table}}": table,
@@ -188,7 +188,7 @@ func (options *RunOptions) Run() {
 			tools.MustCheck(err)
 			//模板替换文件位置
 			//模板替换文件夹位置
-			serverPath := `internal/{{appName}}/services/{{table}}`
+			serverPath := filepath.Join(dir,"internal","{{appName}}","services","{{table}}")
 			serverPath = tools.ReplaceAllData(serverPath, map[string]string{
 				"{{appName}}": options.AppName,
 				"{{table}}":   table,
@@ -196,7 +196,7 @@ func (options *RunOptions) Run() {
 			//创建文件夹
 			tools.MustCheck(os.MkdirAll(serverPath, 777))
 			//模板替换文件位置
-			serverFile := `{{path}}/{{table}}.go`
+			serverFile := filepath.Join("{{path}}","{{table}}.go")
 			serverFile = tools.ReplaceAllData(serverFile, map[string]string{
 				"{{path}}":  serverPath,
 				"{{table}}": table,
@@ -223,14 +223,14 @@ func (options *RunOptions) Run() {
 			})
 			tools.MustCheck(err)
 			//模板替换文件位置
-			registryPath := `internal/{{appName}}/api/{{version}}/registry`
+			registryPath := filepath.Join(dir,"internal","{{appName}}","api","{{version}}","registry")
 			registryPath = tools.ReplaceAllData(registryPath, map[string]string{
 				"{{appName}}": options.AppName,
 				"{{version}}": tools.UnStrFirstToUpper(options.Version),
 			})
 			//创建文件夹
 			tools.MustCheck(os.MkdirAll(registryPath, 777))
-			registryFile := `{{path}}/{{table}}.go`
+			registryFile := filepath.Join("{{path}}","{{table}}.go")
 			registryFile = tools.ReplaceAllData(registryFile, map[string]string{
 				"{{path}}":  registryPath,
 				"{{table}}": table,
@@ -254,7 +254,7 @@ func (options *RunOptions) Run() {
 			})
 			tools.MustCheck(err)
 			//模板替换文件位置
-			mapFile := `internal/{{appName}}/map/{{table}}.go`
+			mapFile := filepath.Join(dir,"internal","{{appName}}","map","{{table}}.go")
 			mapFile = tools.ReplaceAllData(mapFile, map[string]string{
 				"{{appName}}": options.AppName,
 				"{{table}}":   table,
