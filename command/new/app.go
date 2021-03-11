@@ -21,6 +21,7 @@ func (options *RunOptions) Run() {
 			"tmp\\":       "",
 			".tmpl":       "",
 		})
+		fmt.Println(newPath)
 		if regexp.MustCompile(`\\.git`).MatchString(newPath) && !info.IsDir() {
 			return nil
 		}
