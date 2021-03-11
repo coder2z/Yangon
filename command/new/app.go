@@ -19,13 +19,13 @@ func (options *RunOptions) Run() {
 			"{{AppName}}": options.AppName,
 			"new":         "",
 			"tmp":         "",
-			".l":       "",
+			".l":          "",
 		})
 		if regexp.MustCompile(`.git`).MatchString(newPath) && !info.IsDir() {
 			return nil
 		}
 		if info.IsDir() {
-			_ = os.MkdirAll(newPath, 777)
+			_ = os.MkdirAll(newPath, 0777)
 		} else {
 			if tools.CheckFileIsExist(newPath) && options.Backup {
 				tools.MustCheck(os.Rename(newPath, fmt.Sprintf("%s.bak", newPath)))
