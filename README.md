@@ -16,7 +16,9 @@ or
 
 `
 git clone https://github.com.cnpmjs.org/coder2z/yangon.git
+
 cd yangon
+
 go install
 `
 
