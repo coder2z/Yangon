@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/coder2z/g-saber/xconsole"
 	"os"
+	"path/filepath"
 	"yangon/constant"
 	"yangon/tools"
 
@@ -29,7 +30,7 @@ type List struct {
 //todo map
 
 func (options *RunOptions) Run() {
-
+	dir, _ := os.Getwd()
 	var err error
 
 	data, err := manager.NewDataSource(xflag.NString("go", "config"))
@@ -48,7 +49,7 @@ func (options *RunOptions) Run() {
 	db := database.Invoker(options.dbLabel)
 
 	//拉取模板
-	tools.MustCheck(tools.GitClone(constant.GitUrl, "tmp\\"+options.ProjectName))
+	tools.MustCheck(tools.GitClone(constant.GitUrl, filepath.Join(dir,"tmp",options.ProjectName)))
 	//defer删除拉取的模板
 	defer tools.RemoveAllList("tmp")
 	//查找表
@@ -93,7 +94,7 @@ func (options *RunOptions) Run() {
 			//获取到模板文件
 			//模板替换
 			if isTime {
-				modelText, err = tools.ParseTmplFile(fmt.Sprintf(`tmp/%s/model/model.go.tmpl`, options.ProjectName), map[string]string{
+				modelText, err = tools.ParseTmplFile(filepath.Join(dir,"tmp",options.ProjectName,"model","model.go.tmpl"), map[string]string{
 					"TableFieldList": TableFieldList,
 					"ProjectName":    options.ProjectName,
 					"appName":        options.AppName,
@@ -103,7 +104,7 @@ func (options *RunOptions) Run() {
 					"IsTime":         "\"time\"",
 				})
 			} else {
-				modelText, err = tools.ParseTmplFile(fmt.Sprintf(`tmp/%s/model/model.go.tmpl`, options.ProjectName), map[string]string{
+				modelText, err = tools.ParseTmplFile(filepath.Join(dir,"tmp",options.ProjectName,"model","model.go.tmpl"), map[string]string{
 					"TableFieldList": TableFieldList,
 					"ProjectName":    options.ProjectName,
 					"appName":        options.AppName,
@@ -141,7 +142,7 @@ func (options *RunOptions) Run() {
 		{
 			var handleText string
 			//获取到模板文件
-			handleText, err = tools.ParseTmplFile(fmt.Sprintf(`tmp/%s/model/handle.go.tmpl`, options.ProjectName), map[string]string{
+			handleText, err = tools.ParseTmplFile(filepath.Join(dir,"tmp",options.ProjectName,"model","handle.go.tmpl"), map[string]string{
 				"ProjectName": options.ProjectName,
 				"appName":     options.AppName,
 				"AppName":     tools.StrFirstToUpper(options.AppName),
@@ -175,7 +176,7 @@ func (options *RunOptions) Run() {
 		{
 			var serverText string
 			//获取到模板文件
-			serverText, err = tools.ParseTmplFile(fmt.Sprintf(`tmp/%s/model/server.go.tmpl`, options.ProjectName), map[string]string{
+			serverText, err = tools.ParseTmplFile(filepath.Join(dir,"tmp",options.ProjectName,"model","server.go.tmpl"), map[string]string{
 				"ProjectName": options.ProjectName,
 				"appName":     options.AppName,
 				"AppName":     tools.StrFirstToUpper(options.AppName),
@@ -213,7 +214,7 @@ func (options *RunOptions) Run() {
 		{
 			var registryText string
 			//获取到模板文件
-			registryText, err = tools.ParseTmplFile(fmt.Sprintf(`tmp/%s/model/registry.go.tmpl`, options.ProjectName), map[string]string{
+			registryText, err = tools.ParseTmplFile(filepath.Join(dir,"tmp",options.ProjectName,"model","registry.go.tmpl"), map[string]string{
 				"ProjectName": options.ProjectName,
 				"appName":     options.AppName,
 				"TableName":   modelName,
@@ -247,7 +248,7 @@ func (options *RunOptions) Run() {
 		{
 			var mapText string
 			//获取到模板文件
-			mapText, err = tools.ParseTmplFile(fmt.Sprintf(`tmp/%s/model/map.go.tmpl`, options.ProjectName), map[string]string{
+			mapText, err = tools.ParseTmplFile(filepath.Join(dir,"tmp",options.ProjectName,"model","map.go.tmpl"), map[string]string{
 				"TableName":     modelName,
 				"TableFieldMap": TableFieldMap,
 			})
