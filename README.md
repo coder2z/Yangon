@@ -14,13 +14,13 @@ go get -u github.com/coder2z/yangon
 
 or
 
-`
+```
 git clone https://github.com.cnpmjs.org/coder2z/yangon.git
 
 cd yangon
 
 go install
-`
+```
 
 ## :anchor:Usage
 
