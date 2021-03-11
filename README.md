@@ -26,12 +26,12 @@ go install
 
 ### Verify that the installation is complete
 
-input:
+**input:**
 ```shell
 λ yangon --help
 ```
 
-output:
+**output:**
 ```console
 Usage:
   Yangon [command]
@@ -50,16 +50,14 @@ Use "Yangon [command] --help" for more information about a command.
 
 ### Create project
 
-input:
-
+**input:**
 ```shell
 λ yangon new -a appname -p projectname
 
 λ cd projectname
 ```
 
-output:
-
+**output:**
 ```                                     
 ├─build                                   
 │  └─appname       //   dockerfile                       
@@ -92,15 +90,17 @@ output:
 └─test                                    
 ```
 
-###Generate CRUD code
+### Generate CRUD code
 
-modify config
+Provided that your database has a corresponding table
+
+#### modify config 
 
 ```shell
 vim config/config.toml
 ```
 
-Set up database connection config
+#### Set up database connection config
 
 ```shell
 [mysql.main]
@@ -113,13 +113,15 @@ Set up database connection config
     debug = true
 ```
 
-input:
+#### Generate
+
+**input:**
 
 ```shell
 λ yangon go -a appname -p projectname -v v1
 ```
 
-output:
+**output:**
 ```
 ├─internal
 │  └─appname
