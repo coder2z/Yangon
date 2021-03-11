@@ -12,6 +12,7 @@ import (
 
 func (options *RunOptions) Run() {
 	tools.MustCheck(tools.GitClone(constant.GitUrl, "tmp\\"+options.ProjectName))
+	_ = os.Mkdir("tmp\\"+options.ProjectName, os.ModePerm)
 	_ = filepath.Walk("tmp\\"+options.ProjectName+"\\new", func(path string, info os.FileInfo, err error) error {
 		if info == nil {
 			return nil
