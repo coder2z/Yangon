@@ -19,8 +19,12 @@ func (options *RunOptions) Run() {
 			"{{AppName}}": options.AppName,
 			"new":         "",
 			"tmp":         "",
-			".l":          "",
 		})
+
+		newPath = tools.ReplaceAllData(newPath, map[string]string{
+			".l": "",
+		})
+
 		if regexp.MustCompile(`.git`).MatchString(newPath) && !info.IsDir() {
 			return nil
 		}
