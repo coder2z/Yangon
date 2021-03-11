@@ -24,8 +24,15 @@ go install
 
 ## :anchor:Usage
 
-```bash
+### Verify that the installation is complete
+
+input:
+```shell
 λ yangon --help
+```
+
+output:
+```console
 Usage:
   Yangon [command]
 
@@ -39,6 +46,96 @@ Flags:
   -h, --help   help for Yangon
 
 Use "Yangon [command] --help" for more information about a command.
+```
+
+### Create project
+
+input:
+
+```shell
+λ yangon new -a appname -p projectname
+
+λ cd projectname
+```
+
+output:
+
+```                                     
+├─build                                   
+│  └─appname       //   dockerfile                       
+├─cmd              //   app main                       
+│  └─appname                              
+│      └─app                              
+├─config           //   config                       
+├─deployments      //   k8sfile                      
+│  └─appname                              
+│      └─templates                        
+├─internal         //   business code                       
+│  └─appname                              
+│      ├─api                              
+│      │  └─v1                            
+│      │      ├─handle                    
+│      │      ├─middleware                
+│      │      └─registry                  
+│      ├─map                              
+│      ├─model                            
+│      ├─services                         
+│      └─validator                        
+├─pkg              //   Public package                         
+│  ├─constant                             
+│  ├─rand                                 
+│  ├─recaptcha                            
+│  ├─response                             
+│  └─rpc                                  
+├─scripts          //   construct                          
+│  └─appname                              
+└─test                                    
+```
+
+###Generate CRUD code
+
+modify config
+
+```shell
+vim config/config.toml
+```
+
+Set up database connection config
+
+```shell
+[mysql.main]
+    tablePrefix = ""
+    host = "127.0.0.1"
+    username = "root"
+    password = "root"
+    dbName = ""
+    type = "mysql"
+    debug = true
+```
+
+input:
+
+```shell
+λ yangon go -a appname -p projectname -v v1
+```
+
+output:
+```
+├─internal
+│  └─appname
+│      ├─api
+│      │  └─v1
+│      │      ├─handle          //code Here     
+│      │      ├─middleware      
+│      │      └─registry        //code Here    
+│      ├─map                    //code Here    
+│      ├─model                  //code Here    
+│      │  ├─access_token
+│      │  └─user
+│      ├─services               //code Here    
+│      │  ├─access_token
+│      │  └─user
+│      └─validator
 ```
 
 ## :tada:Contribute code
