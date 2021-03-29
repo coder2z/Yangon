@@ -66,6 +66,7 @@ func (options *RunOptions) Run() {
 		tools.MustCheck(err)
 		var TableFieldList, TableFieldMap string
 		imports := ""
+		var importsList = make(map[string]struct{})
 		Id := "ID"
 		for listRows.Next() {
 			list := new(List)
@@ -88,9 +89,14 @@ func (options *RunOptions) Run() {
 			}
 
 			if v, ok := tools.EImportsHead[structType]; ok {
-				imports += fmt.Sprintf("%s\n", v)
+				importsList[v] = struct{}{}
 			}
 		}
+
+		for s, _ := range importsList {
+			imports += fmt.Sprintf("%s\n", s)
+		}
+
 		// model
 		{
 			var modelText string
