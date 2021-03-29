@@ -49,7 +49,7 @@ func (options *RunOptions) Run() {
 	db := database.Invoker(options.dbLabel)
 
 	//拉取模板
-	tools.MustCheck(tools.GitClone(constant.GitUrl, filepath.Join(dir,"tmp",options.ProjectName)))
+	tools.MustCheck(tools.GitClone(constant.GitUrl, filepath.Join(dir, "tmp", options.ProjectName)))
 	//defer删除拉取的模板
 	defer tools.RemoveAllList("tmp")
 	//查找表
@@ -65,7 +65,7 @@ func (options *RunOptions) Run() {
 		listRows, err := db.Raw(fmt.Sprintf("show columns from %s;", table)).Rows()
 		tools.MustCheck(err)
 		var TableFieldList, TableFieldMap string
-		isTime := false
+		imports := ""
 		Id := "ID"
 		for listRows.Next() {
 			list := new(List)
@@ -80,12 +80,15 @@ func (options *RunOptions) Run() {
 			var structType string
 			var tmpIsTime bool
 			//把对应的字段类型转换为结构体类型
-			structType, tmpIsTime = tools.SqlType2StructType(list.Type,list.Null)
-			isTime = tmpIsTime || isTime
+			structType, tmpIsTime = tools.SqlType2StructType(list.Type, list.Null)
 			//组合结构体中的字段，字符串
 			TableFieldList += fmt.Sprintf("%s\t%s\n\t", upper, structType)
 			if !tmpIsTime {
 				TableFieldMap += fmt.Sprintf("%s\t%s\t `form:\"%s\" json:\"%s\" validate:\"required\"` \n\t", upper, structType, list.Key, list.Key)
+			}
+
+			if v, ok := tools.EImportsHead[structType]; ok {
+				imports += fmt.Sprintf("%s\n", v)
 			}
 		}
 		// model
@@ -93,30 +96,18 @@ func (options *RunOptions) Run() {
 			var modelText string
 			//获取到模板文件
 			//模板替换
-			if isTime {
-				modelText, err = tools.ParseTmplFile(filepath.Join(dir,"tmp",options.ProjectName,"model","model.go.tmpl"), map[string]string{
-					"TableFieldList": TableFieldList,
-					"ProjectName":    options.ProjectName,
-					"appName":        options.AppName,
-					"TableName":      modelName,
-					"tableName":      table,
-					"ID":             Id,
-					"IsTime":         "\"time\"",
-				})
-			} else {
-				modelText, err = tools.ParseTmplFile(filepath.Join(dir,"tmp",options.ProjectName,"model","model.go.tmpl"), map[string]string{
-					"TableFieldList": TableFieldList,
-					"ProjectName":    options.ProjectName,
-					"appName":        options.AppName,
-					"TableName":      modelName,
-					"tableName":      table,
-					"ID":             Id,
-					"IsTime":         "",
-				})
-			}
+			modelText, err = tools.ParseTmplFile(filepath.Join(dir, "tmp", options.ProjectName, "model", "model.go.tmpl"), map[string]string{
+				"TableFieldList": TableFieldList,
+				"ProjectName":    options.ProjectName,
+				"appName":        options.AppName,
+				"TableName":      modelName,
+				"tableName":      table,
+				"ID":             Id,
+				"Imports":        imports,
+			})
 			tools.MustCheck(err)
 			//模板替换文件夹位置
-			modelPath := filepath.Join(dir,"internal","{{appName}}","model","{{table}}")
+			modelPath := filepath.Join(dir, "internal", "{{appName}}", "model", "{{table}}")
 			modelPath = tools.ReplaceAllData(modelPath, map[string]string{
 				"{{appName}}": options.AppName,
 				"{{table}}":   table,
@@ -124,7 +115,7 @@ func (options *RunOptions) Run() {
 			//创建文件夹
 			tools.MustCheck(os.MkdirAll(modelPath, 777))
 			//模板替换文件位置
-			modelFile := filepath.Join("{{path}}","{{table}}.go")
+			modelFile := filepath.Join("{{path}}", "{{table}}.go")
 			modelFile = tools.ReplaceAllData(modelFile, map[string]string{
 				"{{path}}":  modelPath,
 				"{{table}}": table,
@@ -142,7 +133,7 @@ func (options *RunOptions) Run() {
 		{
 			var handleText string
 			//获取到模板文件
-			handleText, err = tools.ParseTmplFile(filepath.Join(dir,"tmp",options.ProjectName,"model","handle.go.tmpl"), map[string]string{
+			handleText, err = tools.ParseTmplFile(filepath.Join(dir, "tmp", options.ProjectName, "model", "handle.go.tmpl"), map[string]string{
 				"ProjectName": options.ProjectName,
 				"appName":     options.AppName,
 				"AppName":     tools.StrFirstToUpper(options.AppName),
@@ -151,14 +142,14 @@ func (options *RunOptions) Run() {
 			})
 			tools.MustCheck(err)
 			//模板替换文件位置
-			handlePath := filepath.Join(dir,"internal","{{appName}}","api","{{version}}","handle")
+			handlePath := filepath.Join(dir, "internal", "{{appName}}", "api", "{{version}}", "handle")
 			handlePath = tools.ReplaceAllData(handlePath, map[string]string{
 				"{{appName}}": options.AppName,
 				"{{version}}": tools.UnStrFirstToUpper(options.Version),
 			})
 			//创建文件夹
 			tools.MustCheck(os.MkdirAll(handlePath, 777))
-			handleFile := filepath.Join("{{path}}","{{table}}.go")
+			handleFile := filepath.Join("{{path}}", "{{table}}.go")
 			handleFile = tools.ReplaceAllData(handleFile, map[string]string{
 				"{{path}}":  handlePath,
 				"{{table}}": table,
@@ -176,7 +167,7 @@ func (options *RunOptions) Run() {
 		{
 			var serverText string
 			//获取到模板文件
-			serverText, err = tools.ParseTmplFile(filepath.Join(dir,"tmp",options.ProjectName,"model","server.go.tmpl"), map[string]string{
+			serverText, err = tools.ParseTmplFile(filepath.Join(dir, "tmp", options.ProjectName, "model", "server.go.tmpl"), map[string]string{
 				"ProjectName": options.ProjectName,
 				"appName":     options.AppName,
 				"AppName":     tools.StrFirstToUpper(options.AppName),
@@ -188,7 +179,7 @@ func (options *RunOptions) Run() {
 			tools.MustCheck(err)
 			//模板替换文件位置
 			//模板替换文件夹位置
-			serverPath := filepath.Join(dir,"internal","{{appName}}","services","{{table}}")
+			serverPath := filepath.Join(dir, "internal", "{{appName}}", "services", "{{table}}")
 			serverPath = tools.ReplaceAllData(serverPath, map[string]string{
 				"{{appName}}": options.AppName,
 				"{{table}}":   table,
@@ -196,7 +187,7 @@ func (options *RunOptions) Run() {
 			//创建文件夹
 			tools.MustCheck(os.MkdirAll(serverPath, 777))
 			//模板替换文件位置
-			serverFile := filepath.Join("{{path}}","{{table}}.go")
+			serverFile := filepath.Join("{{path}}", "{{table}}.go")
 			serverFile = tools.ReplaceAllData(serverFile, map[string]string{
 				"{{path}}":  serverPath,
 				"{{table}}": table,
@@ -214,7 +205,7 @@ func (options *RunOptions) Run() {
 		{
 			var registryText string
 			//获取到模板文件
-			registryText, err = tools.ParseTmplFile(filepath.Join(dir,"tmp",options.ProjectName,"model","registry.go.tmpl"), map[string]string{
+			registryText, err = tools.ParseTmplFile(filepath.Join(dir, "tmp", options.ProjectName, "model", "registry.go.tmpl"), map[string]string{
 				"ProjectName": options.ProjectName,
 				"appName":     options.AppName,
 				"TableName":   modelName,
@@ -223,14 +214,14 @@ func (options *RunOptions) Run() {
 			})
 			tools.MustCheck(err)
 			//模板替换文件位置
-			registryPath := filepath.Join(dir,"internal","{{appName}}","api","{{version}}","registry")
+			registryPath := filepath.Join(dir, "internal", "{{appName}}", "api", "{{version}}", "registry")
 			registryPath = tools.ReplaceAllData(registryPath, map[string]string{
 				"{{appName}}": options.AppName,
 				"{{version}}": tools.UnStrFirstToUpper(options.Version),
 			})
 			//创建文件夹
 			tools.MustCheck(os.MkdirAll(registryPath, 777))
-			registryFile := filepath.Join("{{path}}","{{table}}.go")
+			registryFile := filepath.Join("{{path}}", "{{table}}.go")
 			registryFile = tools.ReplaceAllData(registryFile, map[string]string{
 				"{{path}}":  registryPath,
 				"{{table}}": table,
@@ -248,13 +239,13 @@ func (options *RunOptions) Run() {
 		{
 			var mapText string
 			//获取到模板文件
-			mapText, err = tools.ParseTmplFile(filepath.Join(dir,"tmp",options.ProjectName,"model","map.go.tmpl"), map[string]string{
+			mapText, err = tools.ParseTmplFile(filepath.Join(dir, "tmp", options.ProjectName, "model", "map.go.tmpl"), map[string]string{
 				"TableName":     modelName,
 				"TableFieldMap": TableFieldMap,
 			})
 			tools.MustCheck(err)
 			//模板替换文件位置
-			mapFile := filepath.Join(dir,"internal","{{appName}}","map","{{table}}.go")
+			mapFile := filepath.Join(dir, "internal", "{{appName}}", "map", "{{table}}.go")
 			mapFile = tools.ReplaceAllData(mapFile, map[string]string{
 				"{{appName}}": options.AppName,
 				"{{table}}":   table,

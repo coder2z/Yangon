@@ -6,6 +6,12 @@ import (
 	"strings"
 )
 
+var EImportsHead = map[string]string{
+	"time.Time":      `"time"`,
+	"datatypes.JSON": `"gorm.io/datatypes"`,
+	"datatypes.Date": `"gorm.io/datatypes"`,
+}
+
 func SqlType2StructType(t, isnull string) (string, bool) {
 	isnullB := strings.EqualFold(isnull, "YES")
 	if v, ok := TypeMysqlDicMp[t]; ok {
