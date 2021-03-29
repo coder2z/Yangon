@@ -80,7 +80,7 @@ func (options *RunOptions) Run() {
 			var structType string
 			var tmpIsTime bool
 			//把对应的字段类型转换为结构体类型
-			structType, tmpIsTime = tools.SqlType2StructType(list.Type)
+			structType, tmpIsTime = tools.SqlType2StructType(list.Type,list.Null)
 			isTime = tmpIsTime || isTime
 			//组合结构体中的字段，字符串
 			TableFieldList += fmt.Sprintf("%s\t%s\n\t", upper, structType)

@@ -2,20 +2,19 @@ package newApp
 
 import (
 	"github.com/coder2z/g-saber/xflag"
-	"github.com/spf13/cobra"
 )
 
-var App xflag.CommandNode
+var Rpc xflag.CommandNode
 
 func init() {
 	options := NewRunOptions()
-	App = xflag.CommandNode{
-		Name: "new",
+	Rpc = xflag.CommandNode{
+		Name: "rpc",
 		Command: &xflag.Command{
-			Use:   "new",
-			Short: "Generate app scaffolding",
-			Long:  `Quickly generate app scaffolding`,
-			Run: func(cmd *cobra.Command, args []string) {
+			Use:   "rpc",
+			Short: "Generate rpc app scaffolding",
+			Long:  `Quickly generate rpc app scaffolding`,
+			Run: func(cmd *xflag.Command, args []string) {
 				options.Run()
 			},
 		},

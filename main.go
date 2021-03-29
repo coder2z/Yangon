@@ -13,7 +13,7 @@ func main() {
 		Use: "Yangon",
 	})
 	xflag.Register(
-		newApp.App,
+		newApp.Rpc,
 		model.Model,
 		version.Version,
 	)

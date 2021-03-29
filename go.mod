@@ -4,7 +4,7 @@ go 1.15
 
 require (
 	github.com/BurntSushi/toml v0.3.1
-	github.com/coder2z/g-saber v1.0.1
+	github.com/coder2z/g-saber v1.0.2
 	github.com/coder2z/g-server v1.0.5
 	github.com/spf13/cobra v1.1.3
 	gopkg.in/src-d/go-git.v4 v4.13.1
