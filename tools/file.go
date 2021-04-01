@@ -1,13 +1,23 @@
 package tools
 
-import "os"
+import (
+	"os"
+)
 
 func WriteToFile(filename, content string) {
-	f, err := os.Create(filename)
+	f, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0777)
+	os.Chmod(filename, 0777)
 	MustCheck(err)
 	defer CloseFile(f)
 	_, err = f.WriteString(content)
 	MustCheck(err)
+}
+
+func MakeAllPath(path string) error {
+	err := os.MkdirAll(path, 0777)
+	MustCheck(err)
+	os.Chmod(path, 0777)
+	return nil
 }
 
 func CloseFile(f *os.File) {

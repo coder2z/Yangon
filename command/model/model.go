@@ -119,7 +119,7 @@ func (options *RunOptions) Run() {
 				"{{table}}":   table,
 			})
 			//创建文件夹
-			tools.MustCheck(os.MkdirAll(modelPath, 777))
+			tools.MustCheck(tools.MakeAllPath(modelPath))
 			//模板替换文件位置
 			modelFile := filepath.Join("{{path}}", "{{table}}.go")
 			modelFile = tools.ReplaceAllData(modelFile, map[string]string{
@@ -154,7 +154,7 @@ func (options *RunOptions) Run() {
 				"{{version}}": tools.UnStrFirstToUpper(options.Version),
 			})
 			//创建文件夹
-			tools.MustCheck(os.MkdirAll(handlePath, 777))
+			tools.MustCheck(tools.MakeAllPath(handlePath))
 			handleFile := filepath.Join("{{path}}", "{{table}}.go")
 			handleFile = tools.ReplaceAllData(handleFile, map[string]string{
 				"{{path}}":  handlePath,
@@ -191,7 +191,7 @@ func (options *RunOptions) Run() {
 				"{{table}}":   table,
 			})
 			//创建文件夹
-			tools.MustCheck(os.MkdirAll(serverPath, 777))
+			tools.MustCheck(tools.MakeAllPath(serverPath))
 			//模板替换文件位置
 			serverFile := filepath.Join("{{path}}", "{{table}}.go")
 			serverFile = tools.ReplaceAllData(serverFile, map[string]string{
@@ -226,7 +226,7 @@ func (options *RunOptions) Run() {
 				"{{version}}": tools.UnStrFirstToUpper(options.Version),
 			})
 			//创建文件夹
-			tools.MustCheck(os.MkdirAll(registryPath, 777))
+			tools.MustCheck(tools.MakeAllPath(registryPath))
 			registryFile := filepath.Join("{{path}}", "{{table}}.go")
 			registryFile = tools.ReplaceAllData(registryFile, map[string]string{
 				"{{path}}":  registryPath,
