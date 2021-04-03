@@ -1,18 +1,18 @@
 package run
 
 import (
-	"github.com/spf13/cobra"
+	"github.com/coder2z/g-saber/xflag"
 )
 
-var Run *cobra.Command
+var Run *xflag.Command
 
 func init() {
 	var options *RunOptions
-	Run = &cobra.Command{
+	Run = &xflag.Command{
 		Use:   "run",
 		Short: "run all app",
 		Long:  `run all app`,
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *xflag.Command, args []string) error {
 			options.Run()
 			return nil
 		},
@@ -23,10 +23,10 @@ func init() {
 }
 
 type RunOptions struct {
-	c *cobra.Command
+	c *xflag.Command
 }
 
-func NewRunOptions(c *cobra.Command) *RunOptions {
+func NewRunOptions(c *xflag.Command) *RunOptions {
 	s := &RunOptions{c: c}
 	return s
 }

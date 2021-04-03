@@ -4,7 +4,6 @@ import (
 	"github.com/coder2z/g-saber/xcast"
 	"github.com/coder2z/g-saber/xconsole"
 	"github.com/coder2z/g-saber/xflag"
-	"github.com/spf13/cobra"
 	"yangon/constant"
 )
 
@@ -17,7 +16,7 @@ func init() {
 			Use:   "version",
 			Short: "app version",
 			Long:  `app version`,
-			RunE: func(cmd *cobra.Command, args []string) error {
+			RunE: func(cmd *xflag.Command, args []string) error {
 				xconsole.Greenf("version:", xcast.ToString(constant.Version))
 				return nil
 			},
