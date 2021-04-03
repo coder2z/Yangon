@@ -15,13 +15,21 @@ var EImportsHead = map[string]string{
 func SqlType2StructType(t, isnull string) (string, bool) {
 	isnullB := strings.EqualFold(isnull, "YES")
 	if v, ok := TypeMysqlDicMp[t]; ok {
-		return fixNullToPorint(v, isnullB), regexp.MustCompile(`date`).MatchString(t)
+		var isTime bool
+		if regexp.MustCompile(`date`).MatchString(t) || regexp.MustCompile(`time`).MatchString(t) {
+			isTime = true
+		}
+		return fixNullToPorint(v, isnullB), isTime
 	}
 
 	// Fuzzy Regular Matching.模糊正则匹配
 	for _, l := range TypeMysqlMatchList {
 		if ok, _ := regexp.MatchString(l.Key, t); ok {
-			return fixNullToPorint(l.Value, isnullB), regexp.MustCompile(`date`).MatchString(t)
+			var isTime bool
+			if regexp.MustCompile(`date`).MatchString(t) || regexp.MustCompile(`time`).MatchString(t) {
+				isTime = true
+			}
+			return fixNullToPorint(l.Value, isnullB), isTime
 		}
 	}
 	panic(fmt.Sprintf("type (%v) not match in any way)", t))
